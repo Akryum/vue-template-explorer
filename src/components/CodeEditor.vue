@@ -101,5 +101,8 @@ export default {
   &,
   >>> .CodeMirror
     height 100%
+
+    .CodeMirror-linenumber
+      color #556
 </style>
 
