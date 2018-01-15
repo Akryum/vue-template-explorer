@@ -1,13 +1,13 @@
 <template>
   <div id="app">
     <div class="md-layout">
-      <div class="md-layout-item md-size-20">
+      <div class="md-layout-item layout-files">
         <FileExplorer
-          class="pane-item"
+          class="pane-item files"
           :current-file.sync="currentFile"
         />
       </div>
-      <div class="md-layout-item md-size-40">
+      <div class="md-layout-item">
         <FileEditor
           v-if="currentFile"
           class="pane-item"
@@ -15,7 +15,7 @@
           @file="onFile"
         />
       </div>
-      <div class="md-layout-item md-size-40">
+      <div class="md-layout-item">
         <CodeEditor
           v-if="currentFile"
           class="pane-item result"
@@ -72,6 +72,18 @@ body,
 .md-layout,
 .pane-item
   height 100%
+
+.md-layout
+  flex-wrap nowrap
+
+.md-layout-item
+  flex auto 2 1
+  width 0
+
+.layout-files
+  flex auto 1 1
+  width 0
+  min-width 220px
 
 .result
   >>>

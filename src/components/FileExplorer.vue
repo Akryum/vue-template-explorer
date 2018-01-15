@@ -1,18 +1,31 @@
 <template>
   <div class="file-explorer">
     <md-toolbar class="toolbar md-dense md-primary">
-      <md-button
-        @click="intentNewFile()"
-      >
-        Create file
-      </md-button>
-      <md-button
-        class="md-icon-button"
-        :disabled="!currentFile"
-        @click="currentFile && (confirmRemove = true)"
-      >
-        <md-icon>delete</md-icon>
-      </md-button>
+      <div class="md-toolbar-section-start">
+        <md-button
+          @click="intentNewFile()"
+        >
+          Create file
+        </md-button>
+      </div>
+      <div class="md-toolbar-section-end">
+        <md-button
+          class="md-icon-button"
+          :disabled="!currentFile"
+          @click="currentFile && intentRename()"
+        >
+          <md-icon>edit</md-icon>
+          <md-tooltip md-direction="bottom">Rename file</md-tooltip>
+        </md-button>
+        <md-button
+          class="md-icon-button"
+          :disabled="!currentFile"
+          @click="currentFile && (confirmRemove = true)"
+        >
+          <md-icon>delete</md-icon>
+          <md-tooltip md-direction="bottom">Remove file</md-tooltip>
+        </md-button>
+      </div>
     </md-toolbar>
     <md-list class="tree">
       <md-list-item
@@ -26,6 +39,7 @@
         <div class="md-list-item-text">
           {{ file }}
         </div>
+        <md-tooltip md-direction="right">{{ file }}</md-tooltip>
       </md-list-item>
     </md-list>
 
@@ -45,6 +59,15 @@
       md-confirm-text="Remove"
       @md-confirm="removeFile(currentFile)"
     />
+
+    <md-dialog-prompt
+      :md-active.sync="renameShown"
+      v-model="newFilePath"
+      md-title="Rename file"
+      md-input-placeholder="File name"
+      md-confirm-text="Rename"
+      @md-confirm="renameFile()"
+    />
   </div>
 </template>
 
@@ -60,6 +83,7 @@ export default {
       newFileShown: false,
       newFilePath: '',
       confirmRemove: false,
+      renameShown: false,
     }
   },
 
@@ -100,6 +124,23 @@ export default {
       const index = this.files.indexOf(path)
       index !== -1 && this.files.splice(index, 1)
       this.openFile(null)
+    },
+
+    intentRename () {
+      this.newFilePath = this.currentFile
+      this.renameShown = true
+    },
+
+    renameFile () {
+      const path = this.newFilePath
+      const oldPath = this.currentFile
+      if (path && path !== this.currentFile) {
+        localStorage.setItem(path, localStorage.getItem(oldPath))
+        localStorage.removeItem(oldPath)
+        const index = this.files.indexOf(oldPath)
+        index !== -1 && this.files.splice(index, 1, path)
+        this.openFile(path)
+      }
     },
 
     openFile (file) {
