@@ -29,7 +29,8 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import { compile } from 'vue-template-compiler'
+import stripWith from 'vue-template-es2015-compiler'
 import { js_beautify } from 'js-beautify'
 
 export default {
@@ -43,16 +44,22 @@ export default {
 
   methods: {
     onFile (file) {
-      const result = Vue.compile(file.content)
-      let code = `// render
-      ${result.render}\n
-      // staticRenderFns
-      ${result.staticRenderFns}\n`
-      code = code.replace(/([\[,])/g, '$1\n')
-      code = js_beautify(code, {
-        indent_size: 2,
-      })
-      this.renderCode = code
+      try {
+        const result = compile(file.content)
+        let code = `const render = function () {${result.render}\n}\n
+        const staticRenderFns = [${result.staticRenderFns.map(
+          fn => `function () {${fn}}`
+        )}
+        ]`
+        code = stripWith(code)
+        code = code.replace(/([\[,])/g, '$1\n')
+        code = js_beautify(code, {
+          indent_size: 2,
+        })
+        this.renderCode = code
+      } catch (e) {
+        console.error(e)
+      }
     },
   },
 }
@@ -91,4 +98,3 @@ body,
     .CodeMirror-gutter
       background darken(#2b2c27, 20%)
 </style>
-
